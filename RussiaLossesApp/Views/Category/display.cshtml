@@ -1,0 +1,18 @@
+﻿@model EquipCategory
+
+
+<h2>List of equipment in category "@Model.Name@@"</h2>
+<table>
+    <thead>
+        <th>Name</th>
+        <th>Type of equipment</th>
+    </thead>
+    <tbody>
+        @foreach (EquipType et in Model.EquipTypes)
+        {
+            <tr>
+                <td>@et.name</td>
+            </tr>
+        }
+    </tbody>
+</table>

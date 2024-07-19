@@ -1,0 +1,53 @@
+﻿@model List<EquipCategory>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<h1>Index</h1>
+
+<h2>Select Category:</h2>
+<form id="selectCategory" method="get" action="SelectCategory">
+    <select id="catId" name="catId">
+        <option value=""></option>
+        @foreach (EquipCategory item in Model)
+        {
+            <option value="@item.Id">@item.Name</option>
+        }
+    </select>
+    <br />
+    <input type="submit" id="categorySelect" value="Select Category" style="display:none"></input>
+</form>
+<script>
+
+    $('#catId').on('input', function () {
+        var input = $(this).val();
+        if (input === '') {
+            $('#categorySelect').hide();
+        } else {
+            $('#categorySelect').show();
+        }
+    });
+
+</script>
+
+<h2>Create New Category:</h2>
+<form id="create_category" method="post" action="CreateCategory">
+    <input type="text" id="newCategoryName" name="name" required>
+    <input type="submit" id="newCategorySubmit" value="Submit" disabled>
+</form>
+<script>
+    
+    $('#newCategoryName').on('input', function () {
+        var input = $(this).val();
+        if (input === '') {
+            $('#newCategorySubmit').prop('disabled', true);
+        } else {
+            $('#newCategorySubmit').prop('disabled', false);
+        }
+    });
+    
+</script>

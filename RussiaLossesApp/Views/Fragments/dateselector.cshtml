@@ -1,0 +1,32 @@
+﻿
+<div id="dateselector">
+    <select id="formSelect">
+        <option value="---" selected="selected"></option>
+        <option value="summary_day">Single Day</option>
+        <option value="summary_month">Single Month</option>
+        <option value="summary_range">Date Range</option>
+    </select>
+    <script >
+        $("#formSelect").on("change", function () {
+            $("#" + $(this).val()).show().siblings().hide();
+            $("#formSelect").show();
+        });
+    </script>
+
+    <form name="summary_day" id="summary_day" action="summary_day" method="get" style="display:none">
+        <label for="date">Day:</label>
+        <input type="date" id="date" name="date" min="2022-02-24" value="2024-06-05" />
+        <input type="submit" value="Load Summary" />
+    </form>
+    <form name="summary_month" id="summary_month" action="summary_month" method="get" style="display:none">
+        <label for="date">Month:</label>
+        <input type="month" id="month" name="month" min="2022-02" value="2024-01" />
+        <input type="submit" value="Load Summary" />
+    </form>
+    <form name="summary_range" id="summary_range" action="summary_range" method="get" style="display:none">
+        <label for="date">Day:</label>
+        <input type="date" id="start" name="start" min="2022-02-24" value="2024-06-05" />
+        <input type="date" id="end" name="end" min="2022-02-24" value="2024-06-05" />
+        <input type="submit" value="Load Summary" />
+    </form>
+</div>

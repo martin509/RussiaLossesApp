@@ -1,0 +1,48 @@
+﻿@model List<(string, EquipType[])>
+<h1>Category Editor</h1>
+Editing category: @TempData["CurCategory"]
+<br />
+
+    <select id="typeDropdown">
+        <option value=""></option>
+        @foreach ((string, EquipType[]) item in Model)
+        {
+        <option value="@item.Item1.Replace(" ", "")">@item.Item1</option>
+        }
+    </select>
+@foreach ((string, EquipType[]) item in Model)
+{
+    <form id="@item.Item1.Replace(" ", "")" class="nameDropdown" method="post" action="AddToCategory" style="display:none">
+        <input type="hidden" name="catName" value="@TempData["CurCategory"]">
+        <select name="equipName">
+            <option value=""></option>
+            @foreach (EquipType name in item.Item2)
+            {
+                <option value="@name.Id">@name.name</option>
+            }
+        </select>
+    
+        <input type="submit" value="Add To Category"></input>
+    </form>
+}
+<script>
+    $('#typeDropdown').on('input', function () {
+        var key = $(this).val();
+        if (key === '') {
+            $('.nameDropdown').hide();
+        } else {
+            $('.nameDropdown').hide();
+            $('#' + key).show();
+            
+        }
+
+    })
+    $('.nameDropdown').on('input', function () {
+        var key = $(this).val();
+        if (key == '') {
+            $('#submitButton').hide();
+        } else {
+            $('#submitButton').show();
+        }
+    })
+</script>

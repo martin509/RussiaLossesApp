@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<head>
+    <link rel="stylesheet" href="stylesheet.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Russia Losses App</h1>
+    <div class="date-submit">
+        <h2>Check Russian Losses On Date</h2>
+        <partial name="/Views/Fragments/dateselector.cshtml" />
+        <br />
+        <form name="cat_index" id="cat_index" action="Category/Index" method="get">
+            <input type="submit" value="Categories" />
+        </form>
+        <br />
+        <h2>Seed Database</h2>
+        <partial name="/Views/Fragments/seedselector.cshtml" />
+        
+    </div>
+
+
+</body>

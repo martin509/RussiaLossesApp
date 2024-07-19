@@ -1,0 +1,29 @@
+﻿<div id="seedselector">
+    <select id="seedSelect">
+        <option value="---" selected="selected"></option>
+        <option value="seedday">Single Day</option>
+        <option value="seedmonth">Single Month</option>
+        <option value="seeduntil">Until Date</option>
+    </select>
+    <script>
+        $("#seedSelect").on("change", function () {
+            $("#" + $(this).val()).show().siblings().hide();
+            $("#seedSelect").show();
+        });
+    </script>
+
+    <form method="post" id="seedday" action="seedday" style="display:none">
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" min="2022-02-24" value="2024-06-13" />
+        <input type="submit" value="Seed Database (single day)" />
+    </form>
+    <form method="post" id="seedmonth" action="seedmonth" style="display:none">
+        <label for="date">Month:</label>
+        <input type="month" id="month" name="month" min="2022-02" value="2024-06-05" />
+        <input type="submit" value="Seed Database (single month)" />
+    </form>
+    <form method="post" id="seeduntil" action="seeduntil" style="display:none">
+        <input type="date" id="date" name="date" min="2022-02-24" value="2024-06-13" />
+        <input type="submit" value="Seed Database (until date)" />
+    </form>
+</div>

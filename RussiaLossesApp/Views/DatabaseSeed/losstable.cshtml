@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Loss List";
+}
+<head>
+    <link rel="stylesheet" href="stylesheet.css">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+</head>
+<partial name="/Views/Fragments/dateselector.cshtml" />
+
+<table>
+    <thead>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Model</th>
+        <th>Date Lost</th>
+        <th>Nearest Location</th>
+        <th>Coordinates</th>
+        <th>Unit</th>
+        <th>Misc. Tags</th>
+    </thead>
+    <tbody>
+        @foreach (var LossObject in Model)
+        {
+            <tr>
+                <td>@LossObject.Id</td>
+                <td>@LossObject.EquipType.category</td>
+                <td>@LossObject.EquipType.name</td>
+                <td>@LossObject.date</td>
+                <td>@LossObject.nearest_location</td>
+                <td>@LossObject.geo</td>
+                <td>@LossObject.unit</td>
+                <td>@LossObject.tags</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="mapid" style=" = height: 600px;">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js">
+        var lossmap = L.map('mapid').setView([48.4, 36], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(lossmap);
+        
+    </script>
+    
+</div>

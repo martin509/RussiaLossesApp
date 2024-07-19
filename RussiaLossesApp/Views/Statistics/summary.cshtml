@@ -1,0 +1,32 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<head>
+    <link rel="stylesheet" href="stylesheet.css">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</head>
+<partial name="/Views/Fragments/dateselector.cshtml" />
+<partial name="/Views/Fragments/graphselector.cshtml" />
+<table>
+    <thead>
+        @if(TempData["month"] != null)
+        {
+            <th>Type</th>
+            <th>Loss report for @TempData["month"]</th>
+        }
+    </thead>
+    <tbody>
+        @foreach (var summaryObj in Model)
+        {
+            <tr>
+                <td>@summaryObj.type</td>
+                <td>@summaryObj.ToString()</td>
+
+            </tr>
+        }
+    </tbody>
+</table>
