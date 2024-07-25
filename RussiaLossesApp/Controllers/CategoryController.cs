@@ -19,7 +19,7 @@ namespace RussiaLossesApp.Controllers
         private readonly LossObjectContext _losscontext;
 
         [TempData]
-        public string CurCategory { get; set; }
+        public int CurCategory { get; set; }
 
         public CategoryController(LossObjectContext context)
         {
@@ -35,17 +35,28 @@ namespace RussiaLossesApp.Controllers
             return View(categoryNames);
         }
 
-        [HttpGet("Category/GetTypesInCategory")]
-        public async Task<ActionResult> GetTypesInCategory(int catId)
+        [HttpGet("Category/GetCategory")]
+        public async Task<ActionResult> GetCategory(int catId)
         {
-            EquipCategory? category = await _losscontext.EquipCategory.Where(cat => cat.Id == catId).Include(cat => cat.EquipTypes).FirstOrDefaultAsync();
-            List<EquipType> typeList = new List<EquipType>();
+            Debug.WriteLine($"GetCategory has been called! Id: {catId}");
+            EquipCategory? category = await _losscontext.EquipCategory.Include(cat => cat.EquipTypes).Where(cat => cat.Id == catId).FirstOrDefaultAsync();
+            
+            //List<EquipType> typeList = new List<EquipType>();
             if(category != null)
             {
-                typeList = category.EquipTypes;
+                Debug.WriteLine($"EquipTypes: (list of length {category.EquipTypes.Count})");
+                foreach (EquipType et in category.EquipTypes)
+                {
+                    Debug.WriteLine($"{et.Id} ({et.name})");
+                }
+                return Json(category);
+            }
+            else
+            {
+                return BadRequest();
             }
             
-            return Json(typeList);
+            
         }
 
         [HttpGet("Category/SelectCategory")]
@@ -57,39 +68,50 @@ namespace RussiaLossesApp.Controllers
             if (cat != null) { 
                 id = cat.Id;
                 //CurCategory = cat.Name;
-                TempData["CurCategory"] = cat.Name;
+                TempData["CurCategory"] = cat.Id;
+                return View($"add", await getEquipTypes(cat));
+            }
+            else
+            {
+                return RedirectToAction("Index");
             }
 
             //the "add" view requires basically a dictionary of all equipment types
             
-            return View($"add", await getEquipTypes());
+            
         }
 
 
         [HttpPost("Category/AddToCategory")]
-        public async Task<IActionResult> AddToCategory(string equipName, string catName)
+        public async Task<IActionResult> AddToCategory(int equipId, int catId)
         {
-            Debug.WriteLine($"Adding {equipName} to category {catName}...");
-            EquipCategory? category = await _losscontext.EquipCategory.Where(cat => cat.Name == catName).Include(cat => cat.EquipTypes).FirstOrDefaultAsync();
-            EquipType? equipType = await _losscontext.EquipType.Where(et => et.name == equipName).FirstOrDefaultAsync();
+            Debug.WriteLine($"Adding {equipId} to category {catId}...");
+            EquipCategory? category = await _losscontext.EquipCategory.Where(cat => cat.Id == catId).Include(cat => cat.EquipTypes).FirstOrDefaultAsync();
+            EquipType? equipType = await _losscontext.EquipType.Where(et => et.Id == equipId).FirstOrDefaultAsync();
 
             if (category != null && equipType != null && !category.EquipTypes.Exists(et => et.Id == equipType.Id))
             {
+                Debug.WriteLine($"Found {equipId}: {equipType.name}!");
                 category.EquipTypes.Add(equipType);
                 await _losscontext.SaveChangesAsync();
+                TempData.Keep("CurCategory");
+                return await SelectCategory(category.Id);
+                //return View("add", await getEquipTypes(category));
             }
-
-            TempData.Keep("CurCategory");
-
-            return View("add", await getEquipTypes());
+            else
+            {
+                return RedirectToAction("Index");
+            }
+            
         }
 
         [HttpPost("Category/CreateCategory")]
-        public async Task<IActionResult> CreateCategory(string name)
+        public async Task<IActionResult> CreateCategory(string categoryClass, string name)
         {
             //Debug.WriteLine("Entered CreateCategory controller");
             EquipCategory newcat = new EquipCategory();
             newcat.Name = name;
+            newcat.categoryClass = categoryClass;
             EquipCategory? oldcat = _losscontext.EquipCategory.Find(newcat.Id);
             if(oldcat == null)
             {
@@ -108,10 +130,11 @@ namespace RussiaLossesApp.Controllers
             return categoryNames;
         }
 
-        private async Task<List<(string, EquipType[])>> getEquipTypes()
+        private async Task<List<EquipType>> getEquipTypes(EquipCategory cat)
         {
+            var list = await _losscontext.EquipType.Where(et => et.category == cat.categoryClass).ToListAsync();
             //then a bunch of fetching all equipment types
-            Dictionary<string, List<EquipType>> equipDict = new Dictionary<string, List<EquipType>>();
+            /*Dictionary<string, List<EquipType>> equipDict = new Dictionary<string, List<EquipType>>();
             var list = await (_losscontext.EquipType.ToDictionaryAsync(et => et.name));
             foreach (string key in list.Keys)
             {
@@ -125,8 +148,8 @@ namespace RussiaLossesApp.Controllers
             foreach (var dictEntry in equipDict)
             {
                 equipTypes.Add((dictEntry.Key, dictEntry.Value.ToArray()));
-            }
-            return equipTypes;
+            }*/
+            return list;
         }
     }
 }

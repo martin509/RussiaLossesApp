@@ -36,6 +36,13 @@
 
 <h2>Create New Category:</h2>
 <form id="create_category" method="post" action="CreateCategory">
+    <select id="categoryClass" name="categoryClass">
+        <option value=""></option>
+        @foreach (string cls in EquipType.allClasses)
+        {
+            <option value="@cls">@cls</option>
+        }
+    </select>
     <input type="text" id="newCategoryName" name="name" required>
     <input type="submit" id="newCategorySubmit" value="Submit" disabled>
 </form>
@@ -43,7 +50,15 @@
     
     $('#newCategoryName').on('input', function () {
         var input = $(this).val();
-        if (input === '') {
+        if (input === '' || $('#categoryClass').val() === '') {
+            $('#newCategorySubmit').prop('disabled', true);
+        } else {
+            $('#newCategorySubmit').prop('disabled', false);
+        }
+    });
+    $('#categoryClass').on('input', function () {
+        var input = $(this).val();
+        if (input === '' || $('#newCategoryName').val() === '') {
             $('#newCategorySubmit').prop('disabled', true);
         } else {
             $('#newCategorySubmit').prop('disabled', false);

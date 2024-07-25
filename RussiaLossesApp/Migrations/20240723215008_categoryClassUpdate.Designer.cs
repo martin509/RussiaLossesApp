@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RussiaLossesApp.Data;
 
@@ -11,9 +12,11 @@ using RussiaLossesApp.Data;
 namespace RussiaLossesApp.Migrations
 {
     [DbContext(typeof(LossObjectContext))]
-    partial class LossObjectContextModelSnapshot : ModelSnapshot
+    [Migration("20240723215008_categoryClassUpdate")]
+    partial class categoryClassUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

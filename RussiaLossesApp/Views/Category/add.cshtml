@@ -1,42 +1,67 @@
-﻿@model List<(string, EquipType[])>
+﻿@model List<EquipType>
 <h1>Category Editor</h1>
-Editing category: @TempData["CurCategory"]
+
 <br />
 
-    <select id="typeDropdown">
+    <!-- <select id="typeDropdown">
         <option value=""></option>
-        @foreach ((string, EquipType[]) item in Model)
+        foreach (EquipType et in Model)
         {
-        <option value="@item.Item1.Replace(" ", "")">@item.Item1</option>
+        <option value="item.Item1.Replace(" ", "")">item.Item1</option>
         }
-    </select>
-@foreach ((string, EquipType[]) item in Model)
-{
-    <form id="@item.Item1.Replace(" ", "")" class="nameDropdown" method="post" action="AddToCategory" style="display:none">
-        <input type="hidden" name="catName" value="@TempData["CurCategory"]">
-        <select name="equipName">
-            <option value=""></option>
-            @foreach (EquipType name in item.Item2)
-            {
-                <option value="@name.Id">@name.name</option>
-            }
-        </select>
-    
-        <input type="submit" value="Add To Category"></input>
-    </form>
-}
-<script>
-    $('#typeDropdown').on('input', function () {
+        <script>$('#typeDropdown').on('input', function () {
         var key = $(this).val();
         if (key === '') {
             $('.nameDropdown').hide();
         } else {
             $('.nameDropdown').hide();
             $('#' + key).show();
-            
+
         }
 
-    })
+    })</script>
+</select>-->
+<div id="categoryTable"></div>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/Category/GetCategory',
+            type: 'get',
+            data: {
+                catId: '@TempData["CurCategory"]'
+            },
+            dataType: 'json',
+            success: function (data) {
+                var table = $('<table></table>');
+                table.append($('<tr><th>Category: ' + data.name + '</th></tr>'));
+                for (var i = 0; i < data.equipTypes.length; i++) {
+                    var row = $('<tr><td>' + data.equipTypes[i].name + '</td></tr>');
+                    table.append(row);
+                }
+                $('#categoryTable').html(table);
+
+            }
+        });
+    });
+</script>
+
+<br />
+
+    <form id="addToCatform" class="nameDropdown" method="post" action="AddToCategory">
+        <input type="hidden" name="catId" value="@TempData["CurCategory"]">
+        <select name="equipId">
+            <option value=""></option>
+            @foreach (EquipType et in Model)
+            {
+                <option value="@et.Id">@et.name</option>
+            }
+        </select>
+    
+        <input type="submit" value="Add To Category"></input>
+    </form>
+
+<script>
+    
     $('.nameDropdown').on('input', function () {
         var key = $(this).val();
         if (key == '') {
