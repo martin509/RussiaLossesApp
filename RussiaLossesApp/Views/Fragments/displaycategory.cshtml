@@ -1,0 +1,23 @@
+﻿<div id="categoryTable"></div>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/Category/GetCategory',
+            type: 'get',
+            data: {
+                catId: '@TempData["CurCategory"]'
+            },
+            dataType: 'json',
+            success: function (data) {
+                var table = $('<table></table>');
+                table.append($('<tr><th>Category: ' + data.name + '</th></tr>'));
+                for (var i = 0; i < data.equipTypes.length; i++) {
+                    var row = $('<tr><td>' + data.equipTypes[i].name + '</td></tr>');
+                    table.append(row);
+                }
+                $('#categoryTable').html(table);
+
+            }
+        });
+    });
+</script>

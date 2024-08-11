@@ -1,0 +1,44 @@
+﻿<select id="categorydropdown"></select>
+<button id="addcatdropdown">Add to list</button>
+<form id="categorycheckbox" action="FilterByCategories" method="post">
+    <ul id="selectedCategories"></ul>
+    <input type="date" id="categoryFilterStartDate" name="start" min="2022-02-24" value="2024-06-05" />
+    <input type="date" id="categoryFilterEndDate" name="end" min="2022-02-24" value="2024-06-05" />
+    <button type="submit">Submit list</button>
+</form>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/Category/GetAllCategories',
+            type: 'get',
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (i, item) {
+                    $('#categorydropdown').append(new Option(item.name, item.id));
+                });
+                
+
+            }
+        });
+    });
+
+    $('#addcatdropdown').click(function () {
+        var selectedOption = $('#categorydropdown option:selected');
+        var selectedText = selectedOption.text();
+        var selectedValue = selectedOption.val();
+
+        //$('#selectedCategories').append('<li data-value="' + selectedValue + '">' + selectedText + '</li>');
+
+        var selectedValues = [];
+        $('#selectedCategories li').each(function () {
+            selectedValues.push($(this).data('value'));
+        });
+        $('<input>').attr({
+            type: 'hidden',
+            value: selectedValue,
+            name: 'categoryIds'
+        }).appendTo('#categorycheckbox');
+        //$('#categorycheckbox').append('<input type="hidden" name="categoryIds" value="selectedValue"')
+        //$('#categoriesInput').val(selectedValues.join(','));
+    });
+</script>

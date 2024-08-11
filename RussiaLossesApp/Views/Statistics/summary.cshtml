@@ -20,13 +20,59 @@
         }
     </thead>
     <tbody>
-        @foreach (var summaryObj in Model)
+        @*@foreach (var summaryObj in Model)
         {
             <tr>
                 <td>@summaryObj.type</td>
                 <td>@summaryObj.ToString()</td>
 
             </tr>
-        }
+        }*@
     </tbody>
 </table>
+<h2>Loss report for @TempData["month"]</h2>
+<div id="summaryTable"></div>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/Summary/summary_json',
+            type: 'get',
+            data: {
+                start: '@TempData["start"]'
+                end: '@TempData["end"]'
+            },
+            dataType: 'json',
+            success: function (data) {
+                var table = $('<table></table>');
+                table.append($('<thead><th>Type</th><th></th></thead>'));
+                
+                for (var i = 0; i < data.length; i++) {
+                    var current = data[i];
+                    var currentTotal = 0;
+                    var summarystr = [];
+                    if (current.nDestroyed > 0) {
+                        currentTotal += current.nDestroyed;
+                        summarystr.push(current.nDestroyed + ' destroyed');
+                    }
+                    if (current.nDamaged > 0) {
+                        currentTotal += current.nDamaged;
+                        summarystr.push(current.nDamaged + ' damaged');
+                    }
+                    if (current.nCaptured > 0) {
+                        currentTotal += current.nCaptured;
+                        summarystr.push(current.nCaptured + ' captured');
+                    }
+                    if (current.nAbandoned > 0) { 
+                        currentTotal += current.nAbandoned;
+                        summarystr.push(current.nAbandoned + ' abandoned');
+                    }
+                    summarystr.unshift(currentTotal + current.model);
+                    var row = $('<tr><td>' + current.model + '</td><td>' + summarystr.join(', ') +'</tr>');
+                    table.append(row);
+                }
+                $('#summaryTable').html(table);
+
+            }
+        });
+    });
+</script>

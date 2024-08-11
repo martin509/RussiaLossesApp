@@ -55,8 +55,24 @@ namespace RussiaLossesApp.Controllers
             {
                 return BadRequest();
             }
-            
-            
+        }
+
+        [HttpGet("Category/GetAllCategories")]
+        public async Task<ActionResult> GetAllCategories()
+        {
+            Debug.WriteLine("GetAllCategories called.");
+            Stopwatch sw = Stopwatch.StartNew();
+            List<EquipCategory>? categories = await _losscontext.EquipCategory.ToListAsync();
+            if (categories != null)
+            {
+                sw.Stop();
+                Debug.WriteLine($"Time taken for GetAllCategories call: {sw.Elapsed}");
+                return Json(categories);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("Category/SelectCategory")]
@@ -124,7 +140,7 @@ namespace RussiaLossesApp.Controllers
             //return View("create", await getCategories());
         }
 
-        private async Task<List<string>> getCategories()
+        private async Task<List<string>> GetCategories()
         {
             List<string> categoryNames = await _losscontext.EquipCategory.Select(cat => cat.Name).ToListAsync();
             return categoryNames;
