@@ -27,7 +27,7 @@
         var selectedText = selectedOption.text();
         var selectedValue = selectedOption.val();
 
-        //$('#selectedCategories').append('<li data-value="' + selectedValue + '">' + selectedText + '</li>');
+        
 
         var selectedValues = [];
         $('#selectedCategories li').each(function () {
@@ -38,6 +38,7 @@
             value: selectedValue,
             name: 'categoryIds'
         }).appendTo('#categorycheckbox');
+        $('#selectedCategories').append('<li data-value="' + selectedValue + '">' + selectedText + '</li>');
         //$('#categorycheckbox').append('<input type="hidden" name="categoryIds" value="selectedValue"')
         //$('#categoriesInput').val(selectedValues.join(','));
     });

@@ -11,12 +11,12 @@
         <h2>Check Russian Losses On Date</h2>
         <partial name="/Views/Fragments/dateselector.cshtml" />
         <br />
-        <form name="cat_index" id="cat_index" action="Category/Index" method="get">
-            <input type="submit" value="Categories" />
-        </form>
+        <partial name="/Views/Fragments/category_index_button.cshtml" />
         <br />
         <h2>Seed Database</h2>
         <partial name="/Views/Fragments/seedselector.cshtml" />
+        <br />
+        <h2>Filter By Categories</h2>
         <partial name="/Views/Fragments/category_checkbox_filter.cshtml" />
     </div>
 

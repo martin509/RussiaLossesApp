@@ -116,7 +116,7 @@ namespace RussiaLossesApp.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("/Index");
             }
             
         }

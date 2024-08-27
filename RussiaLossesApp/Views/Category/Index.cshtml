@@ -10,7 +10,7 @@
 <h1>Index</h1>
 
 <h2>Select Category:</h2>
-<form id="selectCategory" method="get" action="SelectCategory">
+<form id="selectCategory" method="get" action="/Category/SelectCategory">
     <select id="catId" name="catId">
         <option value=""></option>
         @foreach (EquipCategory item in Model)
@@ -35,7 +35,7 @@
 </script>
 
 <h2>Create New Category:</h2>
-<form id="create_category" method="post" action="CreateCategory">
+<form id="create_category" method="post" action="/Category/CreateCategory">
     <select id="categoryClass" name="categoryClass">
         <option value=""></option>
         @foreach (string cls in EquipType.allClasses)
