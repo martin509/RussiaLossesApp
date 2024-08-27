@@ -1,0 +1,164 @@
+﻿<div class="graphCanvas">
+<canvas id="editorChart" width="300" height="200"></canvas>
+<br />
+<input type="date" id="graphEditStartDate" name="start" min="2022-02-24" value="2024-06-01" />
+<input type="date" id="graphEditEndDate" name="end" min="2022-02-24" value="2024-06-30" />
+    <select name="avg" id="graphEditAvg">
+        <option value="1">Raw Data</option>
+        <option value="7">7-day average</option>
+        <option value="14">14-day average</option>
+        <option value="30">30-day average</option>
+    </select>
+<button id="graphEditSubmit">Get Data</button>
+<script>
+
+    let editordatasets;
+    let editorlabels;
+    
+    var edcontext = document.getElementById('editorChart');
+    let editorChart;
+    
+    $('#graphEditSubmit').click(function () {
+        var runningavg = parseInt($('#graphEditAvg').val());
+        var start = $('#graphEditStartDate').val();
+        
+        
+        if (runningavg > 1) {
+                start = new Date($('#graphEditStartDate').val())
+                start.setDate(start.getDate() - (runningavg - 1))
+                start = start.toISOString();
+        }
+       var end = $('#graphEditEndDate').val();
+        $.ajax({
+            url : '/Statistics/GetGraphByDate',
+            type: 'GET',
+            data: {
+                start: start,
+                end: end
+            },
+            success: function (response) {
+                var jsonresponse = JSON.parse(response);
+
+                if (editorChart) {
+                    editorChart.destroy();
+                }
+                var listlength = jsonresponse[Object.keys(jsonresponse)[0]].length;
+                editorlabels = Array.from({ length: listlength }, (_, index) => index+1);
+
+                datasetlabels = Object.keys(jsonresponse);
+                editordatasets = Object.values(jsonresponse).map((dataArray, index) => {
+                    if(runningavg > 1) {
+                        return {
+                            label: datasetlabels[index],
+                            data: calculateRunningAverage(dataArray, runningavg),
+                            borderColor: `hsl(${index * (100 / (editorlabels.length + 1))}, 90%, 70%)`
+                        };
+                    }
+                    return {
+                        label: datasetlabels[index],
+                        data: dataArray,
+                        borderColor: `hsl(${index * (100 / (editorlabels.length + 1))}, 90%, 70%)`
+                    };
+                    });
+                editorChart = new Chart(edcontext, {
+                        type: 'line',
+                        data: {
+                            labels: editorlabels,
+                            datasets: editordatasets
+                        }
+                    });
+                editorChart.update();
+            }
+        })
+    })
+
+    //var dateLength = 
+    //var labels = Array.from({ length: dateLength }, (_, i) => i + 1);
+    
+
+    let editorColours;
+    var colourIndex = 0;
+    function setUpColours(n) {
+        editorColours = new Array(n);
+        for (var i = 0; i < n; i++) {
+            var hue = Math.floor((360 * i / n) + 10) % 360;
+                editorColours[i] = 'hsl(' + hue + ', 100%, 50%)';
+        }
+        for (var i = n - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = editorColours[i];
+            editorColours[i] = editorColours[j];
+            editorColours[j] = temp;
+        }
+    }
+
+    function getRandomColour() {
+        var index = colourIndex;
+        colourIndex++;
+            return editorColours[index];
+    }
+
+    function calculateRunningAverage(data, period) {
+        let averagedData = [];
+        for (let i = 0; i < data.length; i++) {
+            let sum = 0;
+            let count = 0;
+            for (let j = i; j > i - period && j >= 0; j--) {
+                sum += data[j];
+                count++;
+            }
+            averagedData.push(sum / count);
+        }
+        return averagedData;
+    }
+
+    
+    /*
+    $(document).ready(function () {
+        $.ajax({
+            url: '/Category/GetAllCategories',
+            type: 'get',
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (i, item) {
+                    $('#categorydropdown').append(new Option(item.name, item.id));
+                });
+
+
+            }
+        });
+    });
+
+    $('#addcatdropdown').click(function () {
+        var selectedOption = $('#categorydropdown option:selected');
+        var selectedText = selectedOption.text();
+        var selectedValue = selectedOption.val();
+
+        //$('#selectedCategories').append('<li data-value="' + selectedValue + '">' + selectedText + '</li>');
+
+        var selectedValues = [];
+        $('#selectedCategories li').each(function () {
+            selectedValues.push($(this).data('value'));
+        });
+        $('<input>').attr({
+            type: 'hidden',
+            value: selectedValue,
+            name: 'categoryIds'
+        }).appendTo('#categorycheckbox');
+        //$('#categorycheckbox').append('<input type="hidden" name="categoryIds" value="selectedValue"')
+        //$('#categoriesInput').val(selectedValues.join(','));
+    });
+    */
+    /*function getNewColour() {
+        var colour = colours[Model.IndexOf(item)];
+        theChart.data.datasets.push({
+            label: '($"{item.Item1}")',
+            data: ($"[{string.Join(",", item.Item2)}]"),
+            borderColor: colour
+        });
+        theChart.update();
+    }*/
+       
+    </script>
+</div>
+

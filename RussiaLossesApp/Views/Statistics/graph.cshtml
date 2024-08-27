@@ -33,10 +33,10 @@
         }
     </tbody>
 </table>
-<canvas id="theChart" width="300" height="200"></canvas>
+<canvas id="theChart"  style="width:70%; height:80%; min-height:300px;"></canvas>
 
 <script>
-    var dateLength = @Model.First().Item2.Length;
+    var dateLength = @Model[0].Item2.Length;
     var labels = Array.from({ length: dateLength }, (_, i) => i + 1);
     var context = document.getElementById('theChart');
     var n = @Model.Count;
@@ -75,3 +75,4 @@
     </script>
 }
 
+<partial name="/Views/Fragments/graph_editor.cshtml" />

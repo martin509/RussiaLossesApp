@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RussiaLossesApp.Data;
 using RussiaLossesApp.Models;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -26,16 +29,6 @@ namespace RussiaLossesApp.Controllers
         }
         public async Task<List<LossListObject>> loadSummary(DateTime start, DateTime end)
         {
-            /*var query = $"SELECT * FROM LOSSOBJECT WHERE " +
-                $"DATE >='{start:yyyy-MM-dd}'" +
-                $"AND DATE <='{end:yyyy-MM-dd}'";*/
-
-            /*var query = $"SELECT lo.*, et.* FROM LOSSOBJECT lo " +
-                $"INNER JOIN EquipTypes et ON lo.EquipTypeId = et.Id " +
-                $"WHERE lo.DATE >= '{start:yyyy-MM-dd}' " +
-                $"AND lo.DATE <= '{end:yyyy-MM-dd}'";*/
-            //var fquery = FormattableStringFactory.Create(query);
-            //List<LossObject> entries = await _lossContext.LossObject.FromSql(fquery).Include(lo => lo.type).ToListAsync();
             var entriesHandle = _lossContext.LossObject.Include(lo => lo.EquipType).Where(lo => lo.date >= start && lo.date <= end).ToListAsync();
             
             Dictionary<string, LossListObject> dict = new Dictionary<string, LossListObject>();
@@ -96,11 +89,13 @@ namespace RussiaLossesApp.Controllers
             Debug.WriteLine($"Month: {month}");
             DateTime start = DateTime.ParseExact(month, "yyyy-MM", CultureInfo.InvariantCulture);
             DateTime end = start.AddMonths(1);
+            var summaryHandle = loadSummary(start, end);
+
             TempData["start"] = $"{start:D}";
             TempData["end"] = $"{end:D}";
-            var summary = await loadSummary(start, end);
-
             TempData["month"] = $"{start:Y}";
+
+            var summary = await summaryHandle;
             return View("summary", summary);
         }
 
@@ -119,7 +114,39 @@ namespace RussiaLossesApp.Controllers
             }*/
 
             TempData["month"] = $"{start:Y}";
-            return View("graph", convertToGraph(data));
+            return View("graph", ConvertToGraph(data));
+        }
+
+        [HttpGet("/Statistics/GetGraphByDate")]
+        public async Task<ActionResult> GetGraphByDate(DateTime start, DateTime end)
+        {
+            var data = await loadGraphRange(start, end);
+            if(data == null)
+            {
+                return BadRequest();
+            }
+            Debug.WriteLine("Data:");
+            foreach (var key in data.Keys)
+            {
+                Debug.WriteLine($"{key}: [{string.Join(",", data[key])}]");
+            }
+
+            /*List<(string, float[])> graphValues = ConvertToGraph(data);
+           
+            JArray jArray = new JArray();
+            foreach(var entry in graphValues)
+            {
+                jArray.Add(new JObject(entry.Item1, entry.Item2));
+            }
+            
+            var json = JsonConvert.SerializeObject(graphValues);
+
+            */
+            string json = JsonConvert.SerializeObject(data); //this is functional json
+            Debug.WriteLine($"Json: {json.ToString()}");
+            
+            //Debug.WriteLine($"Json(Json): {Json(json).ToString()}");
+            return Content(json); 
         }
 
         [HttpPost("FilterByCategories")]
@@ -127,7 +154,7 @@ namespace RussiaLossesApp.Controllers
         {
             var categories = await _lossContext.EquipCategory.Include(cat => cat.EquipTypes).Where(cat => categoryIds.Contains(cat.Id)).ToListAsync();
             var graphValues = await loadGraphCategories(start, end, categories);
-            return View("graph", convertToGraph(graphValues));
+            return View("graph", ConvertToGraph(graphValues));
         }
         /// <summary>
         /// Load a dataset for a line chart (dictionary of string, int[]) for equipment losses from start to end
@@ -183,7 +210,8 @@ namespace RussiaLossesApp.Controllers
             Dictionary<string, int[]> graphValues = new Dictionary<string, int[]>(); //basically, a table
             foreach (var cat in catlist)
             {
-                graphValues.Add(cat.Name, new int[end.Subtract(start).Days]);
+                //Debug.WriteLine($"length: {end.Subtract(start).Days + 1}");
+                graphValues.Add(cat.Name, new int[end.Subtract(start).Days + 1]);
             }
 
             var allLosses = await allLossesHandle;
@@ -194,8 +222,13 @@ namespace RussiaLossesApp.Controllers
                 {
                     if (cat.EquipTypes.Contains(lo.EquipType)) //for categories that the loss's equiptype fits into,
                     {
-                        if(graphValues.TryGetValue(cat.Name, out int[] value))
-                            ++value[lo.date.Subtract(start).Days]; //increment the count of losses at the specific day the loss occurred
+                        if(graphValues.TryGetValue(cat.Name, out int[] value)) {
+                            var index = lo.date.Subtract(start).Days;
+                            //Debug.WriteLine($"date: {lo.date:M dd}, start: {start: M dd}, index: {index}");
+                            ++value[index];
+                        }
+
+                             //increment the count of losses at the specific day the loss occurred
                     }
                 }
             }
@@ -233,7 +266,7 @@ namespace RussiaLossesApp.Controllers
             return graphAverages;
         }
 
-        private List<(string, float[])> convertToGraph(Dictionary<string, int[]> data)
+        private List<(string, float[])> ConvertToGraph(Dictionary<string, int[]> data)
         {
             List<(string, float[])> graphValues = new List<(string, float[])>();
             foreach (var dictEntry in data)
@@ -243,7 +276,7 @@ namespace RussiaLossesApp.Controllers
             return graphValues;
         }
 
-        private List<(string, float[])> convertToGraph(Dictionary<string, float[]> data)
+        private List<(string, float[])> ConvertToGraph(Dictionary<string, float[]> data)
         {
             List<(string, float[])> graphValues = new List<(string, float[])>();
             foreach (var dictEntry in data)
